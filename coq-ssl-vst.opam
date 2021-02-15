@@ -1,0 +1,37 @@
+opam-version: "2.0"
+version: "dev"
+
+maintainer: [
+  "Ilya Sergey <ilya.sergey@yale-nus.edu.sg>"
+  "Yasunari Watanabe <yasunari@comp.nus.edu.sg>"
+  "Kiran Gopinathan <kirang@comp.nus.edu.sg>"
+]
+authors: [
+  "Yasunari Watanabe"
+  "Ilya Sergey"
+  "Kiran Gopinathan"
+]
+homepage: "https://github.com/TyGuS/ssl-vst"
+bug-reports: "https://github.com/TyGuS/ssl-vst"
+dev-repo: "git+https://github.com/TyGuS/ssl-vst.git"
+synopsis: "VST tactics for SSL"
+license: "GPL-3.0"
+description: ""
+
+build: [ make ]
+install: [ make "install" ]
+depends: [
+  "ocaml"
+  "coq" {(>= "8.9.0" & < "8.13~") | (= "dev")}
+  "coq-mathcomp-ssreflect" {(>= "1.10.0" & < "1.12~") | (= "dev")}
+  "coq-vst" {(>= "2.6" & < "2.7")}
+]
+tags: [
+  "keyword:separation logic"
+  "keyword:program synthesis"
+  "category:Computer Science/Data Types and Data Structures"
+  "logpath:SSL"]
+
+url {
+  src: "git+https://github.com/TyGuS/ssl-vst.git"
+}
