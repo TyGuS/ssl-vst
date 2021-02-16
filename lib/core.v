@@ -50,3 +50,13 @@ Tactic Notation "ssl_card" constr(C) ident(H) simple_intropattern(x0) simple_int
 Tactic Notation "ssl_card" constr(C) ident(H) simple_intropattern(x0) simple_intropattern(x1) simple_intropattern(x2) simple_intropattern(x3) simple_intropattern(x4) simple_intropattern(x5) simple_intropattern(x6) simple_intropattern(x7) := ssl_card_intro H x0; ssl_card_intro H x1; ssl_card_intro H x2; ssl_card_intro H x3; ssl_card_intro H x4; ssl_card_intro H x5; ssl_card_intro H x6; ssl_card_intro H x7; ssl_card_final C H.
 Tactic Notation "ssl_card" constr(C) ident(H) simple_intropattern(x0) simple_intropattern(x1) simple_intropattern(x2) simple_intropattern(x3) simple_intropattern(x4) simple_intropattern(x5) simple_intropattern(x6) simple_intropattern(x7) simple_intropattern(x8) := ssl_card_intro H x0; ssl_card_intro H x1; ssl_card_intro H x2; ssl_card_intro H x3; ssl_card_intro H x4; ssl_card_intro H x5; ssl_card_intro H x6; ssl_card_intro H x7; ssl_card_intro H x8; ssl_card_final C H.
 Tactic Notation "ssl_card" constr(C) ident(H) simple_intropattern(x0) simple_intropattern(x1) simple_intropattern(x2) simple_intropattern(x3) simple_intropattern(x4) simple_intropattern(x5) simple_intropattern(x6) simple_intropattern(x7) simple_intropattern(x8) simple_intropattern(x9) := ssl_card_intro H x0; ssl_card_intro H x1; ssl_card_intro H x2; ssl_card_intro H x3; ssl_card_intro H x4; ssl_card_intro H x5; ssl_card_intro H x6; ssl_card_intro H x7; ssl_card_intro H x8; ssl_card_intro H x9; ssl_card_final C H.
+
+
+From mathcomp Require Import eqtype.
+
+(* Define eqtype instance for Z *)
+Lemma eqzP : Equality.axiom Z.eqb.
+Proof. exact Z.eqb_spec. Qed.
+
+Canonical Z_eqMixin := EqMixin eqzP.
+Canonical Z_eqType := Eval hnf in EqType Z Z_eqMixin.
