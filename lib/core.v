@@ -60,3 +60,43 @@ Proof. exact Z.eqb_spec. Qed.
 
 Canonical Z_eqMixin := EqMixin eqzP.
 Canonical Z_eqType := Eval hnf in EqType Z Z_eqMixin.
+
+
+Ltac ssl_rewrite_in_heap lemma term :=
+  let H := fresh in
+  let H_eqn := fresh in
+  remember term as H eqn:H_eqn;
+  rewrite lemma in H_eqn;
+  rewrite H_eqn at 1; clear H H_eqn.
+
+Ltac ssl_rewrite_last_heap lemma term :=
+  idtac "rewrite_last_heap2" lemma term;
+  lazymatch term with
+  | (?X * ?Y)%logic =>  ssl_rewrite_last_heap lemma Y || ssl_rewrite_in_heap lemma X
+  | _ => ssl_rewrite_in_heap lemma term
+  end.
+
+Ltac ssl_rewrite_last lemma :=
+  match goal with
+  | [ |- ?H |-- ?V ] => ssl_rewrite_last_heap lemma V
+  | _ => rewrite lemma at 20
+  | _ => rewrite lemma at 19
+  | _ => rewrite lemma at 18
+  | _ => rewrite lemma at 17
+  | _ => rewrite lemma at 16
+  | _ => rewrite lemma at 15
+  | _ => rewrite lemma at 14
+  | _ => rewrite lemma at 13
+  | _ => rewrite lemma at 12
+  | _ => rewrite lemma at 11
+  | _ => rewrite lemma at 10
+  | _ => rewrite lemma at 9
+  | _ => rewrite lemma at 8
+  | _ => rewrite lemma at 7
+  | _ => rewrite lemma at 6
+  | _ => rewrite lemma at 5
+  | _ => rewrite lemma at 4
+  | _ => rewrite lemma at 3
+  | _ => rewrite lemma at 2
+  | _ => rewrite lemma at 1
+  end.
