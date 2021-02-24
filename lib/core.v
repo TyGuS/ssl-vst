@@ -29,13 +29,23 @@ Ltac ssl_dispatch_card :=
       end.
 
 Ltac ssl_card_intro H name :=
+  generalize H; clear H;
   match goal with
-    | [ H : _ = _ |- _] => rewrite H in *; simpl
-    | [ H : exists _ : _, _ |- _] =>
-      let g := fresh in
-      case H; intros name; clear H; intros H
-    | _ => fail
+  | [ |- (_ = _) -> _] =>
+    intro H; rewrite H in *; simpl
+  | [ |-  (exists _ : _, _) -> _] =>
+     intro H; case H; intros name; clear H; intros H
+  | _ => idtac
   end.
+
+(* Ltac ssl_card_intro H name := *)
+(*   match goal with *)
+(*     | [ H : _ = _ |- _] => rewrite H in *; simpl *)
+(*     | [ H : exists _ : _, _ |- _] => *)
+(*       let g := fresh in *)
+(*       case H; intros name; clear H; intros H *)
+(*     | _ => fail *)
+(*   end. *)
 
 Ltac ssl_card_final C H := let H' := fresh H in try (rewrite H in *; rename H into H'; simpl C).
 
