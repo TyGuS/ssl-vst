@@ -100,3 +100,62 @@ Ltac ssl_rewrite_last lemma :=
   | _ => rewrite lemma at 2
   | _ => rewrite lemma at 1
   end.
+
+
+(*==== poor people's tools========*)
+
+(* poor man's ternary *)
+Ltac ssl_forward_write_ternary expr :=
+  match goal with
+  | [ |- (semax _ _ (Ssequence (Ssequence _ (_ ((_ ?X) _))) _) _) ] =>
+    forward_if (temp X expr); auto
+  end.
+
+(* poor man's reflection (can use hammer for this????) *)
+Ltac ssl_reflect_boolean :=
+  repeat match goal with
+  [ H : ?Y = ?X |- context[?Y =? ?X]] =>
+    let Hvar := fresh "H_ssl_helper" in
+    assert (Y =? X = true) as Hvar; first apply  Z.eqb_eq; auto; last rewrite Hvar; auto
+  | [ H : ?X = ?Y |- context[?Y =? ?X]] =>
+    let Hvar := fresh "H_ssl_helper" in
+    assert (Y =? X = true) as Hvar; first apply  Z.eqb_eq; auto; last rewrite Hvar; auto
+  | [ H : ?X <> ?Y |- context[?Y =? ?X]] =>
+    let Hvar := fresh "H_ssl_helper" in
+    assert (Y =? X = false) as Hvar; first apply  Z.eqb_neq; auto; last rewrite Hvar; auto
+  | [ H : ?Y <> ?X |- context[?Y =? ?X]] =>
+    let Hvar := fresh "H_ssl_helper" in
+    assert (Y =? X = false) as Hvar; first apply  Z.eqb_neq; auto; last rewrite Hvar; auto
+
+  | [ H : ?X > ?Y |- context[?X >? ?Y]] =>
+    let Hvar := fresh "H_ssl_helper" in
+    assert (X >? Y = true) as Hvar; first apply Zgt_is_gt_bool; last rewrite Hvar; auto
+  | [ H : ?Y < ?X |- context[?X >? ?Y]] =>
+    let Hvar := fresh "H_ssl_helper" in
+    assert (X >? Y = true) as Hvar; first (apply Zgt_is_gt_bool; apply Z.lt_gt); last rewrite Hvar; auto
+  | [ H : ?X < ?Y |- context[?X <? ?Y]] =>
+    let Hvar := fresh "H_ssl_helper" in
+    assert (X <? Y = true) as Hvar; first apply Z.ltb_lt; last rewrite Hvar; auto
+  | [ H : ?Y > ?X |- context[?X <? ?Y]] =>
+    let Hvar := fresh "H_ssl_helper" in
+    assert (X <? Y = true) as Hvar; first  (apply Zge_is_le_bool; apply Z.le_ge; apply Z.lt_le_incl; apply Z.gt_lt); last rewrite Hvar; auto
+  | [ H : ?X >= ?Y |- context[?Y <=? ?X]] =>
+    let Hvar := fresh "H_ssl_helper" in
+    assert (Y <=? X = true) as Hvar; first apply Zge_is_le_bool; auto; last rewrite Hvar; auto
+  | [ H : ?Y <= ?X |- context[?Y <=? ?X]] =>
+    let Hvar := fresh "H_ssl_helper" in
+    assert (Y <=? X = true) as Hvar; first apply Zge_is_le_bool; auto; last rewrite Hvar; auto
+  | [ H : ?Y < ?X |- context[?Y <=? ?X]] =>
+    let Hvar := fresh "H_ssl_helper" in
+    assert (Y <=? X = true) as Hvar; first (apply Zge_is_le_bool; apply Z.le_ge; apply Z.lt_le_incl); auto; last rewrite Hvar; auto
+  | [ H : ?X > ?Y |- context[?Y <=? ?X]] =>
+    let Hvar := fresh "H_ssl_helper" in
+    assert (Y <=? X = true) as Hvar; first (apply Zge_is_le_bool; apply Z.le_ge; apply Z.lt_le_incl; apply Z.gt_lt); auto; last rewrite Hvar; auto
+  | [ H : ?X < ?Y |- context[?Y <=? ?X]] =>
+    let Hvar := fresh "H_ssl_helper" in
+    assert (Y <=? X = false) as Hvar; first apply Zaux.Zle_bool_false; last rewrite Hvar; auto
+  | [ H : ?Y > ?X |- context[?Y <=? ?X]] =>
+    let Hvar := fresh "H_ssl_helper" in
+    assert (Y <=? X = false) as Hvar; first apply Zaux.Zle_bool_false; last rewrite Hvar; auto
+  | _ => fail
+  end.
