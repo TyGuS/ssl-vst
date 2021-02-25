@@ -121,6 +121,31 @@ Ltac ssl_forward_write_ternary expr :=
     forward_if (temp X expr); auto
   end.
 
+Create HintDb ssl_list_facts.
+Hint Rewrite app_nil_r : ssl_list_facts.
+Hint Rewrite app_nil_l : ssl_list_facts.
+Hint Rewrite app_assoc_reverse : ssl_list_facts.
+Hint Rewrite app_assoc : ssl_list_facts.
+Hint Rewrite app_eq_nil  : ssl_list_facts.
+
+Ltac ssl_safe_entailer_then rest :=
+  lazymatch goal with
+  | [ |- ?Y |-- ?X ] =>  entailer!; rest
+  | _ => auto; rest
+  end.
+
+Ltac ssl_safe_entailer := ssl_safe_entailer_then ltac:(idtac).
+
+Ltac ssl_try_autorewrite := 
+  lazymatch goal with
+  | [ |- context[_ ++ _] ] =>
+    (* if lists, try list facts *)
+    autorewrite with ssl_list_facts; ssl_safe_entailer
+  | _ => idtac
+  end.
+
+Ltac ssl_entailer := ssl_safe_entailer_then ltac:(ssl_try_autorewrite).
+
 (* poor man's reflection (can use hammer for this????) *)
 Ltac ssl_reflect_boolean :=
   repeat match goal with
