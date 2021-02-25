@@ -136,11 +136,20 @@ Ltac ssl_safe_entailer_then rest :=
 
 Ltac ssl_safe_entailer := ssl_safe_entailer_then ltac:(idtac).
 
+Ltac ssl_rewrite_lists := 
+  repeat lazymatch goal with
+       | [H : context[_ ++ _] |- _] => rewrite H
+       | [H : context[_ ++ _] |- _] => rewrite <-H
+       | [H : context[[]] |- _] => rewrite H
+       | [H : context[[]] |- _] => rewrite <-H
+       | _ => fail
+  end.
+
 Ltac ssl_try_autorewrite := 
   lazymatch goal with
   | [ |- context[_ ++ _] ] =>
     (* if lists, try list facts *)
-    autorewrite with ssl_list_facts; ssl_safe_entailer
+    autorewrite with ssl_list_facts; ssl_rewrite_lists; ssl_safe_entailer
   | _ => idtac
   end.
 
