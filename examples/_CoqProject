@@ -22,9 +22,6 @@
 ./listfree.v
 ./verif_listfree.v
 
-./listmorph.v
-./verif_listmorph.v
-
 ./tree_copy.v
 ./verif_tree_copy.v
 
