@@ -1,4 +1,4 @@
--Q ../ SSL_VST
+-Q ../lib SSL_VST
 
 ./mk_acc.v
 ./verif_mk_acc.v
