@@ -3,6 +3,7 @@ default: Makefile.coq
 	make -f Makefile.coq
 
 clean: Makefile.coq
+	$(MAKE) -C ./examples clean
 	make -f Makefile.coq clean
 	rm -f Makefile.coq
 
