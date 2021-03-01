@@ -41,7 +41,7 @@ Fixpoint tree (x: val) (s: (list Z)) (self_card: tree_card) {struct self_card} :
       EX r : val,
       EX s1 : (list Z),
       EX l : val,
- !!(Int.min_signed <= v <= Int.max_signed) && !!(~ ((x : val) = nullval)) && !!((s : list Z) = ((([(v : Z)] : list Z) ++ (s1 : list Z)) ++ (s2 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 3) [(inl ((Vint (Int.repr v)) : val)); (inr (l : val)); (inr (r : val))] (x : val)) * (tree (r : val) (s2 : list Z) (_alpha_514 : tree_card)) * (tree (l : val) (s1 : list Z) (_alpha_513 : tree_card))
+ !!(Int.min_signed <= v <= Int.max_signed) && !!(is_pointer_or_null r) && !!(is_pointer_or_null l) && !!(~ ((x : val) = nullval)) && !!((s : list Z) = ((([(v : Z)] : list Z) ++ (s1 : list Z)) ++ (s2 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 3) [(inl ((Vint (Int.repr v)) : val)); (inr (l : val)); (inr (r : val))] (x : val)) * (tree (l : val) (s1 : list Z) (_alpha_513 : tree_card)) * (tree (r : val) (s2 : list Z) (_alpha_514 : tree_card))
 end.
 
 Inductive treeN_card : Set :=
@@ -56,7 +56,7 @@ Fixpoint treeN (x: val) (n: Z) (self_card: treeN_card) {struct self_card} : mpre
       EX r : val,
       EX n2 : Z,
       EX l : val,
- !!(Int.min_signed <= n1 <= Int.max_signed) && !!(Int.min_signed <= n2 <= Int.max_signed) && !!(~ ((x : val) = nullval)) && !!(0 <= (n1 : Z)) && !!(0 <= (n2 : Z)) && !!((n : Z) = ((1 + (n1 : Z)) + (n2 : Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 3) [(inr (v : val)); (inr (l : val)); (inr (r : val))] (x : val)) * (treeN (r : val) (n2 : Z) (_alpha_516 : treeN_card)) * (treeN (l : val) (n1 : Z) (_alpha_515 : treeN_card))
+ !!(Int.min_signed <= n1 <= Int.max_signed) && !!(is_pointer_or_null v) && !!(is_pointer_or_null r) && !!(Int.min_signed <= n2 <= Int.max_signed) && !!(is_pointer_or_null l) && !!(~ ((x : val) = nullval)) && !!(0 <= (n1 : Z)) && !!(0 <= (n2 : Z)) && !!((n : Z) = ((1 + (n1 : Z)) + (n2 : Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 3) [(inr (v : val)); (inr (l : val)); (inr (r : val))] (x : val)) * (treeN (l : val) (n1 : Z) (_alpha_515 : treeN_card)) * (treeN (r : val) (n2 : Z) (_alpha_516 : treeN_card))
 end.
 
 Inductive sll_card : Set :=
@@ -69,7 +69,7 @@ Fixpoint sll (x: val) (s: (list Z)) (self_card: sll_card) {struct self_card} : m
       EX v : Z,
       EX s1 : (list Z),
       EX nxt : val,
- !!(Int.min_signed <= v <= Int.max_signed) && !!(~ ((x : val) = nullval)) && !!((s : list Z) = (([(v : Z)] : list Z) ++ (s1 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 2) [(inl ((Vint (Int.repr v)) : val)); (inr (nxt : val))] (x : val)) * (sll (nxt : val) (s1 : list Z) (_alpha_517 : sll_card))
+ !!(Int.min_signed <= v <= Int.max_signed) && !!(is_pointer_or_null nxt) && !!(~ ((x : val) = nullval)) && !!((s : list Z) = (([(v : Z)] : list Z) ++ (s1 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 2) [(inl ((Vint (Int.repr v)) : val)); (inr (nxt : val))] (x : val)) * (sll (nxt : val) (s1 : list Z) (_alpha_517 : sll_card))
 end.
 
 Definition sll_append_spec :=
@@ -78,12 +78,12 @@ Definition sll_append_spec :=
    PRE [ (tptr (Tunion _sslval noattr)), (tptr (Tunion _sslval noattr)) ]
    PROP( is_pointer_or_null((x1 : val)); is_pointer_or_null((ret : val)); is_pointer_or_null((x2 : val)) )
    PARAMS(x1; ret)
-   SEP ((data_at Tsh (tarray (Tunion _sslval noattr) 1) [(inr (x2 : val))] (ret : val)); (sll (x2 : val) (s2 : list Z) (_alpha_519 : sll_card)); (sll (x1 : val) (s1 : list Z) (_alpha_518 : sll_card)))
+   SEP ((data_at Tsh (tarray (Tunion _sslval noattr) 1) [(inr (x2 : val))] (ret : val)); (sll (x1 : val) (s1 : list Z) (_alpha_518 : sll_card)); (sll (x2 : val) (s2 : list Z) (_alpha_519 : sll_card)))
    POST[ tvoid ]
    EX y: val,
    EX _alpha_520: sll_card,
    EX s: (list Z),
-   PROP( ((s : list Z) = ((s1 : list Z) ++ (s2 : list Z))) )
+   PROP( ((s : list Z) = ((s1 : list Z) ++ (s2 : list Z))); is_pointer_or_null((y : val)) )
    LOCAL()
    SEP ((data_at Tsh (tarray (Tunion _sslval noattr) 1) [(inr (y : val))] (ret : val)); (sll (y : val) (s : list Z) (_alpha_520 : sll_card))).
 
@@ -97,14 +97,15 @@ Definition tree_flatten_spec :=
    POST[ tvoid ]
    EX y: val,
    EX _alpha_522: sll_card,
-   PROP(  )
+   PROP( is_pointer_or_null((y : val)) )
    LOCAL()
    SEP ((data_at Tsh (tarray (Tunion _sslval noattr) 1) [(inr (y : val))] (z : val)); (sll (y : val) (s : list Z) (_alpha_522 : sll_card))).
 
-Lemma tree_x_valid_pointerP x s self_card: tree x s self_card |-- valid_pointer x. Proof. Admitted.
+Lemma tree_x_valid_pointerP x s self_card: tree x s self_card |-- valid_pointer x. Proof. destruct self_card; simpl; entailer;  entailer!; eauto. Qed.
 Hint Resolve tree_x_valid_pointerP : valid_pointer.
 Lemma tree_local_factsP x s self_card :
-  tree x s self_card|-- !!(((((x : val) = nullval)) -> (self_card = tree_card_0))/\(((~ ((x : val) = nullval))) -> (exists _alpha_514 _alpha_513, self_card = tree_card_2 _alpha_514 _alpha_513))/\is_pointer_or_null((x : val))). Proof. Admitted.
+  tree x s self_card|-- !!(((((x : val) = nullval)) -> (self_card = tree_card_0))/\(((~ ((x : val) = nullval))) -> (exists _alpha_514 _alpha_513, self_card = tree_card_2 _alpha_514 _alpha_513))/\is_pointer_or_null((x : val))).
+ Proof.  destruct self_card;  simpl; entailer; saturate_local; apply prop_right; eauto. Qed.
 Hint Resolve tree_local_factsP : saturate_local.
 Lemma unfold_tree_card_0  (x: val) (s: (list Z)) : tree x s (tree_card_0 ) =  !!((x : val) = nullval) && !!((s : list Z) = ([] : list Z)) && emp. Proof. auto. Qed.
 Lemma unfold_tree_card_2 (_alpha_514 : tree_card) (_alpha_513 : tree_card) (x: val) (s: (list Z)) : tree x s (tree_card_2 _alpha_514 _alpha_513) = 
@@ -113,11 +114,12 @@ Lemma unfold_tree_card_2 (_alpha_514 : tree_card) (_alpha_513 : tree_card) (x: v
       EX r : val,
       EX s1 : (list Z),
       EX l : val,
- !!(Int.min_signed <= v <= Int.max_signed) && !!(~ ((x : val) = nullval)) && !!((s : list Z) = ((([(v : Z)] : list Z) ++ (s1 : list Z)) ++ (s2 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 3) [(inl ((Vint (Int.repr v)) : val)); (inr (l : val)); (inr (r : val))] (x : val)) * (tree (r : val) (s2 : list Z) (_alpha_514 : tree_card)) * (tree (l : val) (s1 : list Z) (_alpha_513 : tree_card)). Proof. auto. Qed.
-Lemma treeN_x_valid_pointerP x n self_card: treeN x n self_card |-- valid_pointer x. Proof. Admitted.
+ !!(Int.min_signed <= v <= Int.max_signed) && !!(is_pointer_or_null r) && !!(is_pointer_or_null l) && !!(~ ((x : val) = nullval)) && !!((s : list Z) = ((([(v : Z)] : list Z) ++ (s1 : list Z)) ++ (s2 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 3) [(inl ((Vint (Int.repr v)) : val)); (inr (l : val)); (inr (r : val))] (x : val)) * (tree (l : val) (s1 : list Z) (_alpha_513 : tree_card)) * (tree (r : val) (s2 : list Z) (_alpha_514 : tree_card)). Proof. auto. Qed.
+Lemma treeN_x_valid_pointerP x n self_card: treeN x n self_card |-- valid_pointer x. Proof. destruct self_card; simpl; entailer;  entailer!; eauto. Qed.
 Hint Resolve treeN_x_valid_pointerP : valid_pointer.
 Lemma treeN_local_factsP x n self_card :
-  treeN x n self_card|-- !!(((((x : val) = nullval)) -> (self_card = treeN_card_0))/\(((~ ((x : val) = nullval))) -> (exists _alpha_516 _alpha_515, self_card = treeN_card_2 _alpha_516 _alpha_515))/\is_pointer_or_null((x : val))). Proof. Admitted.
+  treeN x n self_card|-- !!(((((x : val) = nullval)) -> (self_card = treeN_card_0))/\(((~ ((x : val) = nullval))) -> (exists _alpha_516 _alpha_515, self_card = treeN_card_2 _alpha_516 _alpha_515))/\is_pointer_or_null((x : val))).
+ Proof.  destruct self_card;  simpl; entailer; saturate_local; apply prop_right; eauto. Qed.
 Hint Resolve treeN_local_factsP : saturate_local.
 Lemma unfold_treeN_card_0  (x: val) (n: Z) : treeN x n (treeN_card_0 ) =  !!((x : val) = nullval) && !!((n : Z) = 0) && emp. Proof. auto. Qed.
 Lemma unfold_treeN_card_2 (_alpha_516 : treeN_card) (_alpha_515 : treeN_card) (x: val) (n: Z) : treeN x n (treeN_card_2 _alpha_516 _alpha_515) = 
@@ -126,18 +128,19 @@ Lemma unfold_treeN_card_2 (_alpha_516 : treeN_card) (_alpha_515 : treeN_card) (x
       EX r : val,
       EX n2 : Z,
       EX l : val,
- !!(Int.min_signed <= n1 <= Int.max_signed) && !!(Int.min_signed <= n2 <= Int.max_signed) && !!(~ ((x : val) = nullval)) && !!(0 <= (n1 : Z)) && !!(0 <= (n2 : Z)) && !!((n : Z) = ((1 + (n1 : Z)) + (n2 : Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 3) [(inr (v : val)); (inr (l : val)); (inr (r : val))] (x : val)) * (treeN (r : val) (n2 : Z) (_alpha_516 : treeN_card)) * (treeN (l : val) (n1 : Z) (_alpha_515 : treeN_card)). Proof. auto. Qed.
-Lemma sll_x_valid_pointerP x s self_card: sll x s self_card |-- valid_pointer x. Proof. Admitted.
+ !!(Int.min_signed <= n1 <= Int.max_signed) && !!(is_pointer_or_null v) && !!(is_pointer_or_null r) && !!(Int.min_signed <= n2 <= Int.max_signed) && !!(is_pointer_or_null l) && !!(~ ((x : val) = nullval)) && !!(0 <= (n1 : Z)) && !!(0 <= (n2 : Z)) && !!((n : Z) = ((1 + (n1 : Z)) + (n2 : Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 3) [(inr (v : val)); (inr (l : val)); (inr (r : val))] (x : val)) * (treeN (l : val) (n1 : Z) (_alpha_515 : treeN_card)) * (treeN (r : val) (n2 : Z) (_alpha_516 : treeN_card)). Proof. auto. Qed.
+Lemma sll_x_valid_pointerP x s self_card: sll x s self_card |-- valid_pointer x. Proof. destruct self_card; simpl; entailer;  entailer!; eauto. Qed.
 Hint Resolve sll_x_valid_pointerP : valid_pointer.
 Lemma sll_local_factsP x s self_card :
-  sll x s self_card|-- !!(((((x : val) = nullval)) -> (self_card = sll_card_0))/\(((~ ((x : val) = nullval))) -> (exists _alpha_517, self_card = sll_card_1 _alpha_517))/\is_pointer_or_null((x : val))). Proof. Admitted.
+  sll x s self_card|-- !!(((((x : val) = nullval)) -> (self_card = sll_card_0))/\(((~ ((x : val) = nullval))) -> (exists _alpha_517, self_card = sll_card_1 _alpha_517))/\is_pointer_or_null((x : val))).
+ Proof.  destruct self_card;  simpl; entailer; saturate_local; apply prop_right; eauto. Qed.
 Hint Resolve sll_local_factsP : saturate_local.
 Lemma unfold_sll_card_0  (x: val) (s: (list Z)) : sll x s (sll_card_0 ) =  !!((x : val) = nullval) && !!((s : list Z) = ([] : list Z)) && emp. Proof. auto. Qed.
 Lemma unfold_sll_card_1 (_alpha_517 : sll_card) (x: val) (s: (list Z)) : sll x s (sll_card_1 _alpha_517) = 
       EX v : Z,
       EX s1 : (list Z),
       EX nxt : val,
- !!(Int.min_signed <= v <= Int.max_signed) && !!(~ ((x : val) = nullval)) && !!((s : list Z) = (([(v : Z)] : list Z) ++ (s1 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 2) [(inl ((Vint (Int.repr v)) : val)); (inr (nxt : val))] (x : val)) * (sll (nxt : val) (s1 : list Z) (_alpha_517 : sll_card)). Proof. auto. Qed.
+ !!(Int.min_signed <= v <= Int.max_signed) && !!(is_pointer_or_null nxt) && !!(~ ((x : val) = nullval)) && !!((s : list Z) = (([(v : Z)] : list Z) ++ (s1 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 2) [(inl ((Vint (Int.repr v)) : val)); (inr (nxt : val))] (x : val)) * (sll (nxt : val) (s1 : list Z) (_alpha_517 : sll_card)). Proof. auto. Qed.
 Definition Gprog : funspecs :=
   ltac:(with_library prog [tree_flatten_spec; free_spec; malloc_spec;sll_append_spec]).
 
@@ -159,7 +162,7 @@ forward; entailer!.
 Exists nullval.
 Exists (sll_card_0  : sll_card).
 ssl_entailer.
-ssl_rewrite_last (unfold_sll_card_0 ).
+rewrite (unfold_sll_card_0 ) at 1.
 ssl_entailer.
 
 }
@@ -212,7 +215,7 @@ forward; entailer!.
 Exists (y4 : val).
 Exists (sll_card_1 (_alpha_520 : sll_card) : sll_card).
 ssl_entailer.
-ssl_rewrite_last (unfold_sll_card_1 (_alpha_520 : sll_card)).
+rewrite (unfold_sll_card_1 (_alpha_520 : sll_card)) at 1.
 Exists (vx22 : Z).
 Exists ((s1x2 : list Z) ++ (s2x2 : list Z)).
 Exists (y32 : val).

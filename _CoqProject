@@ -1,2 +1,2 @@
--Q . SSL_VST
+-Q ./lib SSL_VST
 lib/core.v

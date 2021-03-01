@@ -1,3 +1,5 @@
+-Q ../ SSL_VST
+
 ./mk_acc.v
 ./verif_mk_acc.v
 
@@ -10,9 +12,6 @@
 
 ./swap.v
 ./verif_swap.v
-
-./swap1.v
-./verif_swap1.v
 
 ./swap2.v
 ./verif_swap2.v
@@ -64,3 +63,4 @@
 
 ./dll_append.v
 ./verif_dll_append.v
+

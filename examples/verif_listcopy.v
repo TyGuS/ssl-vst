@@ -27,7 +27,7 @@ Fixpoint lseg (x: val) (s: (list Z)) (self_card: lseg_card) {struct self_card} :
       EX v : Z,
       EX s1 : (list Z),
       EX nxt : val,
- !!(Int.min_signed <= v <= Int.max_signed) && !!(~ ((x : val) = nullval)) && !!((s : list Z) = (([(v : Z)] : list Z) ++ (s1 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 2) [(inl ((Vint (Int.repr v)) : val)); (inr (nxt : val))] (x : val)) * (lseg (nxt : val) (s1 : list Z) (_alpha_513 : lseg_card))
+ !!(Int.min_signed <= v <= Int.max_signed) && !!(is_pointer_or_null nxt) && !!(~ ((x : val) = nullval)) && !!((s : list Z) = (([(v : Z)] : list Z) ++ (s1 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 2) [(inl ((Vint (Int.repr v)) : val)); (inr (nxt : val))] (x : val)) * (lseg (nxt : val) (s1 : list Z) (_alpha_513 : lseg_card))
 end.
 
 Inductive lseg2_card : Set :=
@@ -40,7 +40,7 @@ Fixpoint lseg2 (x: val) (y: val) (s: (list Z)) (self_card: lseg2_card) {struct s
       EX v : Z,
       EX s1 : (list Z),
       EX nxt : val,
- !!(Int.min_signed <= v <= Int.max_signed) && !!(~ ((x : val) = (y : val))) && !!((s : list Z) = (([(v : Z)] : list Z) ++ (s1 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 2) [(inl ((Vint (Int.repr v)) : val)); (inr (nxt : val))] (x : val)) * (lseg2 (nxt : val) (y : val) (s1 : list Z) (_alpha_514 : lseg2_card))
+ !!(Int.min_signed <= v <= Int.max_signed) && !!(is_pointer_or_null nxt) && !!(~ ((x : val) = (y : val))) && !!((s : list Z) = (([(v : Z)] : list Z) ++ (s1 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 2) [(inl ((Vint (Int.repr v)) : val)); (inr (nxt : val))] (x : val)) * (lseg2 (nxt : val) (y : val) (s1 : list Z) (_alpha_514 : lseg2_card))
 end.
 
 
@@ -55,34 +55,32 @@ Definition listcopy_spec :=
    EX y: val,
    EX _alpha_516: lseg_card,
    EX _alpha_517: lseg_card,
-   PROP(  )
+   PROP( is_pointer_or_null((y : val)) )
    LOCAL()
-   SEP ((data_at Tsh (tarray (Tunion _sslval noattr) 1) [(inr (y : val))] (r : val)); (lseg (y : val) (s : list Z) (_alpha_517 : lseg_card)); (lseg (x : val) (s : list Z) (_alpha_516 : lseg_card))).
+   SEP ((data_at Tsh (tarray (Tunion _sslval noattr) 1) [(inr (y : val))] (r : val)); (lseg (x : val) (s : list Z) (_alpha_516 : lseg_card)); (lseg (y : val) (s : list Z) (_alpha_517 : lseg_card))).
 
-Lemma lseg_x_valid_pointerP x s self_card: lseg x s self_card |-- valid_pointer x. Proof. Admitted.
+Lemma lseg_x_valid_pointerP x s self_card: lseg x s self_card |-- valid_pointer x. Proof. destruct self_card; simpl; entailer;  entailer!; eauto. Qed.
 Hint Resolve lseg_x_valid_pointerP : valid_pointer.
 Lemma lseg_local_factsP x s self_card :
-  lseg x s self_card|-- !!(((((x : val) = nullval)) -> (self_card = lseg_card_0))/\(((~ ((x : val) = nullval))) -> (exists _alpha_513, self_card = lseg_card_1 _alpha_513))/\is_pointer_or_null((x : val))). Proof. Admitted.
+  lseg x s self_card|-- !!(((((x : val) = nullval)) -> (self_card = lseg_card_0))/\(((~ ((x : val) = nullval))) -> (exists _alpha_513, self_card = lseg_card_1 _alpha_513))/\is_pointer_or_null((x : val))).
+ Proof.  destruct self_card;  simpl; entailer; saturate_local; apply prop_right; eauto. Qed.
 Hint Resolve lseg_local_factsP : saturate_local.
 Lemma unfold_lseg_card_0  (x: val) (s: (list Z)) : lseg x s (lseg_card_0 ) =  !!((x : val) = nullval) && !!((s : list Z) = ([] : list Z)) && emp. Proof. auto. Qed.
 Lemma unfold_lseg_card_1 (_alpha_513 : lseg_card) (x: val) (s: (list Z)) : lseg x s (lseg_card_1 _alpha_513) = 
       EX v : Z,
       EX s1 : (list Z),
       EX nxt : val,
- !!(Int.min_signed <= v <= Int.max_signed) && !!(~ ((x : val) = nullval)) && !!((s : list Z) = (([(v : Z)] : list Z) ++ (s1 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 2) [(inl ((Vint (Int.repr v)) : val)); (inr (nxt : val))] (x : val)) * (lseg (nxt : val) (s1 : list Z) (_alpha_513 : lseg_card)). Proof. auto. Qed.
-Lemma lseg2_x_valid_pointerP x y s self_card: lseg2 x y s self_card |-- valid_pointer x. Proof. Admitted.
-Hint Resolve lseg2_x_valid_pointerP : valid_pointer.
-Lemma lseg2_y_valid_pointerP x y s self_card: lseg2 x y s self_card |-- valid_pointer y. Proof. Admitted.
-Hint Resolve lseg2_y_valid_pointerP : valid_pointer.
+ !!(Int.min_signed <= v <= Int.max_signed) && !!(is_pointer_or_null nxt) && !!(~ ((x : val) = nullval)) && !!((s : list Z) = (([(v : Z)] : list Z) ++ (s1 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 2) [(inl ((Vint (Int.repr v)) : val)); (inr (nxt : val))] (x : val)) * (lseg (nxt : val) (s1 : list Z) (_alpha_513 : lseg_card)). Proof. auto. Qed.
 Lemma lseg2_local_factsP x y s self_card :
-  lseg2 x y s self_card|-- !!(((((x : val) = (y : val))) -> (self_card = lseg2_card_0))/\(((~ ((x : val) = (y : val)))) -> (exists _alpha_514, self_card = lseg2_card_1 _alpha_514))/\is_pointer_or_null((x : val))/\is_pointer_or_null((y : val))). Proof. Admitted.
+  lseg2 x y s self_card|-- !!(((((x : val) = (y : val))) -> (self_card = lseg2_card_0))/\(((~ ((x : val) = (y : val)))) -> (exists _alpha_514, self_card = lseg2_card_1 _alpha_514))).
+ Proof.  destruct self_card;  simpl; entailer; saturate_local; apply prop_right; eauto. Qed.
 Hint Resolve lseg2_local_factsP : saturate_local.
 Lemma unfold_lseg2_card_0  (x: val) (y: val) (s: (list Z)) : lseg2 x y s (lseg2_card_0 ) =  !!((x : val) = (y : val)) && !!((s : list Z) = ([] : list Z)) && emp. Proof. auto. Qed.
 Lemma unfold_lseg2_card_1 (_alpha_514 : lseg2_card) (x: val) (y: val) (s: (list Z)) : lseg2 x y s (lseg2_card_1 _alpha_514) = 
       EX v : Z,
       EX s1 : (list Z),
       EX nxt : val,
- !!(Int.min_signed <= v <= Int.max_signed) && !!(~ ((x : val) = (y : val))) && !!((s : list Z) = (([(v : Z)] : list Z) ++ (s1 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 2) [(inl ((Vint (Int.repr v)) : val)); (inr (nxt : val))] (x : val)) * (lseg2 (nxt : val) (y : val) (s1 : list Z) (_alpha_514 : lseg2_card)). Proof. auto. Qed.
+ !!(Int.min_signed <= v <= Int.max_signed) && !!(is_pointer_or_null nxt) && !!(~ ((x : val) = (y : val))) && !!((s : list Z) = (([(v : Z)] : list Z) ++ (s1 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 2) [(inl ((Vint (Int.repr v)) : val)); (inr (nxt : val))] (x : val)) * (lseg2 (nxt : val) (y : val) (s1 : list Z) (_alpha_514 : lseg2_card)). Proof. auto. Qed.
 Definition Gprog : funspecs :=
   ltac:(with_library prog [listcopy_spec; malloc_spec]).
 
@@ -105,9 +103,9 @@ Exists nullval.
 Exists (lseg_card_0  : lseg_card).
 Exists (lseg_card_0  : lseg_card).
 ssl_entailer.
-ssl_rewrite_last (unfold_lseg_card_0 ).
+rewrite (unfold_lseg_card_0 ) at 1.
 ssl_entailer.
-ssl_rewrite_last (unfold_lseg_card_0 ).
+rewrite (unfold_lseg_card_0 ) at 1.
 ssl_entailer.
 
 }
@@ -126,8 +124,8 @@ assert_PROP(is_pointer_or_null((r : val))). { entailer!. }
 assert_PROP(is_pointer_or_null((nxtx22 : val))). { entailer!. }
 forward_call ((r : val), (nxtx22 : val), (s1x2 : list Z), (_alpha_513x2 : lseg_card)).
 let ret := fresh vret in Intros ret; destruct ret as [[y1 _alpha_5161] _alpha_5171].
-assert_PROP(is_pointer_or_null((y1 : val))). { entailer!. }
 assert_PROP(is_pointer_or_null((nxtx22 : val))). { entailer!. }
+assert_PROP(is_pointer_or_null((y1 : val))). { entailer!. }
 try rename y1 into y12.
 forward.
 forward_call (tarray (Tunion _sslval noattr) 2).
@@ -141,12 +139,12 @@ Exists (y2 : val).
 Exists (lseg_card_1 (_alpha_5161 : lseg_card) : lseg_card).
 Exists (lseg_card_1 (_alpha_5171 : lseg_card) : lseg_card).
 ssl_entailer.
-ssl_rewrite_last (unfold_lseg_card_1 (_alpha_5161 : lseg_card)).
+rewrite (unfold_lseg_card_1 (_alpha_5161 : lseg_card)) at 1.
 Exists (vx22 : Z).
 Exists (s1x2 : list Z).
 Exists (nxtx22 : val).
 ssl_entailer.
-ssl_rewrite_last (unfold_lseg_card_1 (_alpha_5171 : lseg_card)).
+rewrite (unfold_lseg_card_1 (_alpha_5171 : lseg_card)) at 1.
 Exists (vx22 : Z).
 Exists (s1x2 : list Z).
 Exists (y12 : val).

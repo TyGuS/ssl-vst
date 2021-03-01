@@ -9,7 +9,10 @@ clean: Makefile.coq
 install: Makefile.coq
 	make -f Makefile.coq install
 
+examples: default
+	$(MAKE) -C ./examples
+
 Makefile.coq: _CoqProject
 	coq_makefile -f _CoqProject -o Makefile.coq
 
-.PHONY: coq clean install doc
+.PHONY: coq clean install doc examples

@@ -35,14 +35,15 @@ Definition mk_acc_spec :=
    POST[ tvoid ]
    EX x: val,
    EX _alpha_513: account_card,
-   PROP(  )
+   PROP( is_pointer_or_null((x : val)) )
    LOCAL()
    SEP ((data_at Tsh (tarray (Tunion _sslval noattr) 1) [(inr (x : val))] (r : val)); (account (x : val) (force_signed_int (id : val)) (bal : Z) (_alpha_513 : account_card))).
 
-Lemma account_x_valid_pointerP x id bal self_card: account x id bal self_card |-- valid_pointer x. Proof. Admitted.
+Lemma account_x_valid_pointerP x id bal self_card: account x id bal self_card |-- valid_pointer x. Proof. destruct self_card; simpl; entailer;  entailer!; eauto. Qed.
 Hint Resolve account_x_valid_pointerP : valid_pointer.
 Lemma account_local_factsP x id bal self_card :
-  account x id bal self_card|-- !!((((is_true true)) -> (self_card = account_card_0))/\is_pointer_or_null((x : val))). Proof. Admitted.
+  account x id bal self_card|-- !!((((is_true true)) -> (self_card = account_card_0))/\is_pointer_or_null((x : val))).
+ Proof.  destruct self_card;  simpl; entailer; saturate_local; apply prop_right; eauto. Qed.
 Hint Resolve account_local_factsP : saturate_local.
 Lemma unfold_account_card_0  (x: val) (id: Z) (bal: Z) : account x id bal (account_card_0 ) =  !!(is_true true) && (data_at Tsh (tarray (Tunion _sslval noattr) 2) [(inl ((Vint (Int.repr id)) : val)); (inl ((Vint (Int.repr bal)) : val))] (x : val)). Proof. auto. Qed.
 Definition Gprog : funspecs :=
@@ -65,7 +66,7 @@ forward; entailer!.
 Exists (x2 : val).
 Exists (account_card_0  : account_card).
 ssl_entailer.
-ssl_rewrite_last (unfold_account_card_0 ).
+rewrite (unfold_account_card_0 ) at 1.
 ssl_entailer.
 
 Qed.

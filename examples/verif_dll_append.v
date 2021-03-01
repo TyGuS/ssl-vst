@@ -15,7 +15,7 @@ Fixpoint dll (x: val) (z: val) (s: (list Z)) (self_card: dll_card) {struct self_
       EX v : Z,
       EX s1 : (list Z),
       EX w : val,
- !!(Int.min_signed <= v <= Int.max_signed) && !!(~ ((x : val) = nullval)) && !!((s : list Z) = (([(v : Z)] : list Z) ++ (s1 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 3) [(inl ((Vint (Int.repr v)) : val)); (inr (w : val)); (inr (z : val))] (x : val)) * (dll (w : val) (x : val) (s1 : list Z) (_alpha_513 : dll_card))
+ !!(Int.min_signed <= v <= Int.max_signed) && !!(is_pointer_or_null w) && !!(~ ((x : val) = nullval)) && !!((s : list Z) = (([(v : Z)] : list Z) ++ (s1 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 3) [(inl ((Vint (Int.repr v)) : val)); (inr (w : val)); (inr (z : val))] (x : val)) * (dll (w : val) (x : val) (s1 : list Z) (_alpha_513 : dll_card))
 end.
 
 Inductive sll_card : Set :=
@@ -28,7 +28,7 @@ Fixpoint sll (x: val) (s: (list Z)) (self_card: sll_card) {struct self_card} : m
       EX v : Z,
       EX s1 : (list Z),
       EX nxt : val,
- !!(Int.min_signed <= v <= Int.max_signed) && !!(~ ((x : val) = nullval)) && !!((s : list Z) = (([(v : Z)] : list Z) ++ (s1 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 2) [(inl ((Vint (Int.repr v)) : val)); (inr (nxt : val))] (x : val)) * (sll (nxt : val) (s1 : list Z) (_alpha_514 : sll_card))
+ !!(Int.min_signed <= v <= Int.max_signed) && !!(is_pointer_or_null nxt) && !!(~ ((x : val) = nullval)) && !!((s : list Z) = (([(v : Z)] : list Z) ++ (s1 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 2) [(inl ((Vint (Int.repr v)) : val)); (inr (nxt : val))] (x : val)) * (sll (nxt : val) (s1 : list Z) (_alpha_514 : sll_card))
 end.
 
 
@@ -38,40 +38,40 @@ Definition dll_append_spec :=
    PRE [ (tptr (Tunion _sslval noattr)), (tptr (Tunion _sslval noattr)) ]
    PROP( is_pointer_or_null((x1 : val)); is_pointer_or_null((r : val)); is_pointer_or_null((x2 : val)); is_pointer_or_null((b : val)); is_pointer_or_null((a : val)) )
    PARAMS(x1; r)
-   SEP ((data_at Tsh (tarray (Tunion _sslval noattr) 1) [(inr (x2 : val))] (r : val)); (dll (x2 : val) (b : val) (s2 : list Z) (_alpha_516 : dll_card)); (dll (x1 : val) (a : val) (s1 : list Z) (_alpha_515 : dll_card)))
+   SEP ((data_at Tsh (tarray (Tunion _sslval noattr) 1) [(inr (x2 : val))] (r : val)); (dll (x1 : val) (a : val) (s1 : list Z) (_alpha_515 : dll_card)); (dll (x2 : val) (b : val) (s2 : list Z) (_alpha_516 : dll_card)))
    POST[ tvoid ]
    EX y: val,
    EX s: (list Z),
    EX c: val,
    EX _alpha_517: dll_card,
-   PROP( ((s : list Z) = ((s1 : list Z) ++ (s2 : list Z))) )
+   PROP( ((s : list Z) = ((s1 : list Z) ++ (s2 : list Z))); is_pointer_or_null((y : val)); is_pointer_or_null((c : val)) )
    LOCAL()
    SEP ((data_at Tsh (tarray (Tunion _sslval noattr) 1) [(inr (y : val))] (r : val)); (dll (y : val) (c : val) (s : list Z) (_alpha_517 : dll_card))).
 
-Lemma dll_x_valid_pointerP x z s self_card: dll x z s self_card |-- valid_pointer x. Proof. Admitted.
+Lemma dll_x_valid_pointerP x z s self_card: dll x z s self_card |-- valid_pointer x. Proof. destruct self_card; simpl; entailer;  entailer!; eauto. Qed.
 Hint Resolve dll_x_valid_pointerP : valid_pointer.
-Lemma dll_z_valid_pointerP x z s self_card: dll x z s self_card |-- valid_pointer z. Proof. Admitted.
-Hint Resolve dll_z_valid_pointerP : valid_pointer.
 Lemma dll_local_factsP x z s self_card :
-  dll x z s self_card|-- !!(((((x : val) = nullval)) -> (self_card = dll_card_0))/\(((~ ((x : val) = nullval))) -> (exists _alpha_513, self_card = dll_card_1 _alpha_513))/\is_pointer_or_null((x : val))/\is_pointer_or_null((z : val))). Proof. Admitted.
+  dll x z s self_card|-- !!(((((x : val) = nullval)) -> (self_card = dll_card_0))/\(((~ ((x : val) = nullval))) -> (exists _alpha_513, self_card = dll_card_1 _alpha_513))/\is_pointer_or_null((x : val))).
+ Proof.  destruct self_card;  simpl; entailer; saturate_local; apply prop_right; eauto. Qed.
 Hint Resolve dll_local_factsP : saturate_local.
 Lemma unfold_dll_card_0  (x: val) (z: val) (s: (list Z)) : dll x z s (dll_card_0 ) =  !!((x : val) = nullval) && !!((s : list Z) = ([] : list Z)) && emp. Proof. auto. Qed.
 Lemma unfold_dll_card_1 (_alpha_513 : dll_card) (x: val) (z: val) (s: (list Z)) : dll x z s (dll_card_1 _alpha_513) = 
       EX v : Z,
       EX s1 : (list Z),
       EX w : val,
- !!(Int.min_signed <= v <= Int.max_signed) && !!(~ ((x : val) = nullval)) && !!((s : list Z) = (([(v : Z)] : list Z) ++ (s1 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 3) [(inl ((Vint (Int.repr v)) : val)); (inr (w : val)); (inr (z : val))] (x : val)) * (dll (w : val) (x : val) (s1 : list Z) (_alpha_513 : dll_card)). Proof. auto. Qed.
-Lemma sll_x_valid_pointerP x s self_card: sll x s self_card |-- valid_pointer x. Proof. Admitted.
+ !!(Int.min_signed <= v <= Int.max_signed) && !!(is_pointer_or_null w) && !!(~ ((x : val) = nullval)) && !!((s : list Z) = (([(v : Z)] : list Z) ++ (s1 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 3) [(inl ((Vint (Int.repr v)) : val)); (inr (w : val)); (inr (z : val))] (x : val)) * (dll (w : val) (x : val) (s1 : list Z) (_alpha_513 : dll_card)). Proof. auto. Qed.
+Lemma sll_x_valid_pointerP x s self_card: sll x s self_card |-- valid_pointer x. Proof. destruct self_card; simpl; entailer;  entailer!; eauto. Qed.
 Hint Resolve sll_x_valid_pointerP : valid_pointer.
 Lemma sll_local_factsP x s self_card :
-  sll x s self_card|-- !!(((((x : val) = nullval)) -> (self_card = sll_card_0))/\(((~ ((x : val) = nullval))) -> (exists _alpha_514, self_card = sll_card_1 _alpha_514))/\is_pointer_or_null((x : val))). Proof. Admitted.
+  sll x s self_card|-- !!(((((x : val) = nullval)) -> (self_card = sll_card_0))/\(((~ ((x : val) = nullval))) -> (exists _alpha_514, self_card = sll_card_1 _alpha_514))/\is_pointer_or_null((x : val))).
+ Proof.  destruct self_card;  simpl; entailer; saturate_local; apply prop_right; eauto. Qed.
 Hint Resolve sll_local_factsP : saturate_local.
 Lemma unfold_sll_card_0  (x: val) (s: (list Z)) : sll x s (sll_card_0 ) =  !!((x : val) = nullval) && !!((s : list Z) = ([] : list Z)) && emp. Proof. auto. Qed.
 Lemma unfold_sll_card_1 (_alpha_514 : sll_card) (x: val) (s: (list Z)) : sll x s (sll_card_1 _alpha_514) = 
       EX v : Z,
       EX s1 : (list Z),
       EX nxt : val,
- !!(Int.min_signed <= v <= Int.max_signed) && !!(~ ((x : val) = nullval)) && !!((s : list Z) = (([(v : Z)] : list Z) ++ (s1 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 2) [(inl ((Vint (Int.repr v)) : val)); (inr (nxt : val))] (x : val)) * (sll (nxt : val) (s1 : list Z) (_alpha_514 : sll_card)). Proof. auto. Qed.
+ !!(Int.min_signed <= v <= Int.max_signed) && !!(is_pointer_or_null nxt) && !!(~ ((x : val) = nullval)) && !!((s : list Z) = (([(v : Z)] : list Z) ++ (s1 : list Z))) && (data_at Tsh (tarray (Tunion _sslval noattr) 2) [(inl ((Vint (Int.repr v)) : val)); (inr (nxt : val))] (x : val)) * (sll (nxt : val) (s1 : list Z) (_alpha_514 : sll_card)). Proof. auto. Qed.
 Definition Gprog : funspecs :=
   ltac:(with_library prog [dll_append_spec]).
 
@@ -117,7 +117,6 @@ assert_PROP(is_pointer_or_null((x1 : val))). { entailer!. }
 forward_call ((wx12 : val), (r : val), (x22 : val), (s2 : list Z), (b : val), (_alpha_513x1 : dll_card), (_alpha_516 : dll_card), (x1 : val), (s1x1 : list Z)).
 let ret := fresh vret in Intros ret; destruct ret as [[[y1 s3] c1] _alpha_5171].
 assert_PROP(is_pointer_or_null((y1 : val))). { entailer!. }
-assert_PROP(is_pointer_or_null((c1 : val))). { entailer!. }
 let ssl_var := fresh in assert_PROP(s3 = ((s1x1 : list Z) ++ (s2 : list Z))) as ssl_var; try rewrite ssl_var in *. { entailer!. }
 try rename y1 into y12.
 forward.
@@ -135,12 +134,12 @@ Exists ((([(vx12 : Z)] : list Z) ++ (s1x1 : list Z)) ++ (s2 : list Z)).
 Exists (a2 : val).
 Exists (dll_card_1 (dll_card_0  : dll_card) : dll_card).
 ssl_entailer.
-ssl_rewrite_last (unfold_dll_card_1 (dll_card_0  : dll_card)).
+rewrite (unfold_dll_card_1 (dll_card_0  : dll_card)) at 1.
 Exists (vx12 : Z).
 Exists ([] : list Z).
 Exists nullval.
 ssl_entailer.
-ssl_rewrite_last (unfold_dll_card_0 ).
+rewrite (unfold_dll_card_0 ) at 1.
 ssl_entailer.
 
 }
@@ -164,12 +163,12 @@ Exists ((([(vx12 : Z)] : list Z) ++ (s1x1 : list Z)) ++ (s2 : list Z)).
 Exists (a2 : val).
 Exists (dll_card_1 (dll_card_1 (_alpha_513y12 : dll_card) : dll_card) : dll_card).
 ssl_entailer.
-ssl_rewrite_last (unfold_dll_card_1 (dll_card_1 (_alpha_513y12 : dll_card) : dll_card)).
+rewrite (unfold_dll_card_1 (dll_card_1 (_alpha_513y12 : dll_card) : dll_card)) at 1.
 Exists (vx12 : Z).
 Exists (([(vy122 : Z)] : list Z) ++ (s1y12 : list Z)).
 Exists (y12 : val).
 ssl_entailer.
-ssl_rewrite_last (unfold_dll_card_1 (_alpha_513y12 : dll_card)).
+rewrite (unfold_dll_card_1 (_alpha_513y12 : dll_card)) at 1.
 Exists (vy122 : Z).
 Exists (s1y12 : list Z).
 Exists (wy122 : val).
