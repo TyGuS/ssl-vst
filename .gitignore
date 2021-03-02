@@ -7,3 +7,4 @@ VST/
 *.vos
 *.aux
 *.glob
+**/*/.lia.cache

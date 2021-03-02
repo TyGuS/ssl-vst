@@ -4,6 +4,7 @@ default: Makefile.coq
 
 clean: Makefile.coq
 	$(MAKE) -C ./examples clean
+	$(MAKE) -C ./benchmarks clean
 	make -f Makefile.coq clean
 	rm -f Makefile.coq
 
@@ -12,6 +13,10 @@ install: Makefile.coq
 
 examples: default
 	$(MAKE) -C ./examples
+
+benchmarks: default
+	$(MAKE) -C ./benchmarks
+
 
 Makefile.coq: _CoqProject
 	coq_makefile -f _CoqProject -o Makefile.coq
