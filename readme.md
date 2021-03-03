@@ -12,7 +12,7 @@ We recommend installing with OPAM:
 ```
 opam repo add coq-released https://coq.inria.fr/opam/released
 opam pin add coq-ssl-vst git+https://github.com/TyGuS/ssl-vst\#master --no-action --yes
-opam install coq coq-mathcomp-ssreflect coq-ssl-vst coq-vst
+opam install coq coq-mathcomp-ssreflect coq-compcert.3.7~coq-platform coq-ssl-vst coq-vst
 ```
 ## Building Examples
 Simply change directory to the examples folder and run `make` to build all the examples.
